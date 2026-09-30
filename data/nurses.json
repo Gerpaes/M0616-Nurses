@@ -1,0 +1,502 @@
+[
+    {
+        "internal_id": "ENF-0001",
+        "first_name": "Carmen",
+        "last_name": "Gómez",
+        "license_number": "23074938",
+        "username": "carmen.gomez",
+        "password": "%Q2TvnYTpa*6",
+        "email": "carmen.gomez@sanidad.es",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0002",
+        "first_name": "María",
+        "last_name": "Puig",
+        "license_number": "27809232",
+        "username": "maria.puig",
+        "password": "OibAg*e$rlfP",
+        "email": "maria.puig@hospital.cat",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0003",
+        "first_name": "Sergio",
+        "last_name": "Romero",
+        "license_number": "45079348",
+        "username": "sergio.romero",
+        "password": "EGzWaXx*y6B!",
+        "email": "sergio.romero@sanidad.es",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0004",
+        "first_name": "Lucía",
+        "last_name": "Casas",
+        "license_number": "79078509",
+        "username": "lucia.casas",
+        "password": "X9mR2E0J!DQ4",
+        "email": "lucia.casas@hotmail.com",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0005",
+        "first_name": "Pablo",
+        "last_name": "Muñoz",
+        "license_number": "41835645",
+        "username": "pablo.munoz",
+        "password": "zzkhhxhe%&HH",
+        "email": "pablo.munoz@sanidad.es",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0006",
+        "first_name": "Pablo",
+        "last_name": "Jiménez",
+        "license_number": "68609901",
+        "username": "pablo.jimenez",
+        "password": "yMai%dDLrdp%",
+        "email": "pablo.jimenez@hotmail.com",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0007",
+        "first_name": "Paula",
+        "last_name": "Jiménez",
+        "license_number": "92295771",
+        "username": "paula.jimenez",
+        "password": "dVol7W*V&pyZ",
+        "email": "paula.jimenez@hospital.cat",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0008",
+        "first_name": "Marc",
+        "last_name": "Romero",
+        "license_number": "21709158",
+        "username": "marc.romero",
+        "password": "9EU0Wbm97LrD",
+        "email": "marc.romero@gmail.com",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0009",
+        "first_name": "Laura",
+        "last_name": "Martínez",
+        "license_number": "83090067",
+        "username": "laura.martinez",
+        "password": "WTlBnKFnLjim",
+        "email": "laura.martinez@hospital.cat",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0010",
+        "first_name": "Elena",
+        "last_name": "Soler",
+        "license_number": "85843082",
+        "username": "elena.soler",
+        "password": "g7*tWP*GYQTm",
+        "email": "elena.soler@hospital.cat",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0011",
+        "first_name": "Raúl",
+        "last_name": "Ferrer",
+        "license_number": "27580655",
+        "username": "raul.ferrer",
+        "password": "4W05GBn2Fu2h",
+        "email": "raul.ferrer@sanidad.es",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0012",
+        "first_name": "Ana",
+        "last_name": "Ruiz",
+        "license_number": "85051926",
+        "username": "ana.ruiz",
+        "password": "8b&sj#xJQ!Iw",
+        "email": "ana.ruiz@hotmail.com",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0013",
+        "first_name": "Cristina",
+        "last_name": "Pérez",
+        "license_number": "85523511",
+        "username": "cristina.perez",
+        "password": "R*kuWVC0X1IH",
+        "email": "cristina.perez@gmail.com",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0014",
+        "first_name": "Marta",
+        "last_name": "Martínez",
+        "license_number": "89918090",
+        "username": "marta.martinez",
+        "password": "GKbiUiuh#mm4",
+        "email": "marta.martinez@gmail.com",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0015",
+        "first_name": "Núria",
+        "last_name": "Torres",
+        "license_number": "20054086",
+        "username": "nuria.torres",
+        "password": "xN5urzQFt1Mc",
+        "email": "nuria.torres@gmail.com",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0016",
+        "first_name": "Raúl",
+        "last_name": "Martínez",
+        "license_number": "51656517",
+        "username": "raul.martinez",
+        "password": "zsN*Kaxwoeb$",
+        "email": "raul.martinez@outlook.com",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0017",
+        "first_name": "Raúl",
+        "last_name": "Serra",
+        "license_number": "98677486",
+        "username": "raul.serra",
+        "password": "GhqSRP#&c&fA",
+        "email": "raul.serra@outlook.com",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0018",
+        "first_name": "Carlos",
+        "last_name": "Serra",
+        "license_number": "13760193",
+        "username": "carlos.serra",
+        "password": "Hitc3Vo*SqKo",
+        "email": "carlos.serra@outlook.com",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0019",
+        "first_name": "Lucía",
+        "last_name": "Soler",
+        "license_number": "64176912",
+        "username": "lucia.soler",
+        "password": "zpxA24UdvAEZ",
+        "email": "lucia.soler@hotmail.com",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0020",
+        "first_name": "Raúl",
+        "last_name": "Pérez",
+        "license_number": "10535073",
+        "username": "raul.perez",
+        "password": "EtjwPsyAr%V1",
+        "email": "raul.perez@hospital.cat",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0021",
+        "first_name": "David",
+        "last_name": "Vila",
+        "license_number": "17984631",
+        "username": "david.vila",
+        "password": "gFV$n#0jpgDx",
+        "email": "david.vila@sanidad.es",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0022",
+        "first_name": "Álvaro",
+        "last_name": "Ruiz",
+        "license_number": "28465005",
+        "username": "alvaro.ruiz",
+        "password": "#kEg51PHbARk",
+        "email": "alvaro.ruiz@gmail.com",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0023",
+        "first_name": "Daniel",
+        "last_name": "Sánchez",
+        "license_number": "50848201",
+        "username": "daniel.sanchez",
+        "password": "Fy8XwtR4hQXR",
+        "email": "daniel.sanchez@hospital.cat",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0024",
+        "first_name": "Elena",
+        "last_name": "Domínguez",
+        "license_number": "14478919",
+        "username": "elena.dominguez",
+        "password": "a606JUpF5TYB",
+        "email": "elena.dominguez@sanidad.es",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0025",
+        "first_name": "Pablo",
+        "last_name": "Navarro",
+        "license_number": "74444172",
+        "username": "pablo.navarro",
+        "password": "5W#7SQhEHN3K",
+        "email": "pablo.navarro@hospital.cat",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0026",
+        "first_name": "Carlos",
+        "last_name": "Font",
+        "license_number": "99805803",
+        "username": "carlos.font",
+        "password": "syZ2r%iVWz3J",
+        "email": "carlos.font@sanidad.es",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0027",
+        "first_name": "Sergio",
+        "last_name": "Hernández",
+        "license_number": "42545652",
+        "username": "sergio.hernandez",
+        "password": "GTFJAnxcP#bU",
+        "email": "sergio.hernandez@sanidad.es",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0028",
+        "first_name": "Miguel",
+        "last_name": "Navarro",
+        "license_number": "42405059",
+        "username": "miguel.navarro",
+        "password": "tN5uzjs%iNIp",
+        "email": "miguel.navarro@hotmail.com",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0029",
+        "first_name": "Paula",
+        "last_name": "Martínez",
+        "license_number": "19555537",
+        "username": "paula.martinez",
+        "password": "fZLj#wU0N1sy",
+        "email": "paula.martinez@hospital.cat",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0030",
+        "first_name": "Ana",
+        "last_name": "Martín",
+        "license_number": "25396409",
+        "username": "ana.martin",
+        "password": "NJtL3KCrnKZf",
+        "email": "ana.martin@hospital.cat",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0031",
+        "first_name": "Pablo",
+        "last_name": "Vila",
+        "license_number": "37342844",
+        "username": "pablo.vila",
+        "password": "MWrUdH3YUuix",
+        "email": "pablo.vila@hospital.cat",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0032",
+        "first_name": "Laia",
+        "last_name": "Vidal",
+        "license_number": "44363742",
+        "username": "laia.vidal",
+        "password": "bkMzCRU4e!5e",
+        "email": "laia.vidal@sanidad.es",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0033",
+        "first_name": "Laura",
+        "last_name": "Roca",
+        "license_number": "96400327",
+        "username": "laura.roca",
+        "password": "INvVkh!TSoHA",
+        "email": "laura.roca@hospital.cat",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0034",
+        "first_name": "Raúl",
+        "last_name": "Roca",
+        "license_number": "73848811",
+        "username": "raul.roca",
+        "password": "lRCGSj%J5SLi",
+        "email": "raul.roca@sanidad.es",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0035",
+        "first_name": "Núria",
+        "last_name": "Navarro",
+        "license_number": "78318720",
+        "username": "nuria.navarro",
+        "password": "*f5M3OUYOrVV",
+        "email": "nuria.navarro@gmail.com",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0036",
+        "first_name": "Sergio",
+        "last_name": "García",
+        "license_number": "54841957",
+        "username": "sergio.garcia",
+        "password": "YIMVSWLWK2KL",
+        "email": "sergio.garcia@hospital.cat",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0037",
+        "first_name": "Jordi",
+        "last_name": "Serra",
+        "license_number": "66719231",
+        "username": "jordi.serra",
+        "password": "!9h9AO!hkyoO",
+        "email": "jordi.serra@hotmail.com",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0038",
+        "first_name": "María",
+        "last_name": "Díaz",
+        "license_number": "32919232",
+        "username": "maria.diaz",
+        "password": "q5RHG#lXVnx3",
+        "email": "maria.diaz@sanidad.es",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0039",
+        "first_name": "Carmen",
+        "last_name": "Sánchez",
+        "license_number": "99236079",
+        "username": "carmen.sanchez",
+        "password": "eA5RwUV1MN&3",
+        "email": "carmen.sanchez@outlook.com",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0040",
+        "first_name": "Jordi",
+        "last_name": "Romero",
+        "license_number": "39827005",
+        "username": "jordi.romero",
+        "password": "6sYda3Au@bWK",
+        "email": "jordi.romero@outlook.com",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0041",
+        "first_name": "Jordi",
+        "last_name": "Ferrer",
+        "license_number": "12696601",
+        "username": "jordi.ferrer",
+        "password": "G!J6r4Sb3@LW",
+        "email": "jordi.ferrer@gmail.com",
+        "shift": "morning"
+    },
+    {
+        "internal_id": "ENF-0042",
+        "first_name": "David",
+        "last_name": "Vila",
+        "license_number": "75352991",
+        "username": "david.vila515",
+        "password": "X@8N1*geZ#xc",
+        "email": "david.vila515@sanidad.es",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0043",
+        "first_name": "David",
+        "last_name": "Navarro",
+        "license_number": "44997945",
+        "username": "david.navarro",
+        "password": "CpabS*aOl8Lw",
+        "email": "david.navarro@gmail.com",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0044",
+        "first_name": "Paula",
+        "last_name": "Roca",
+        "license_number": "61863035",
+        "username": "paula.roca",
+        "password": "4J%9KrM&TqTe",
+        "email": "paula.roca@hospital.cat",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0045",
+        "first_name": "Carmen",
+        "last_name": "Domínguez",
+        "license_number": "99028317",
+        "username": "carmen.dominguez",
+        "password": "@he%XUEx$Fv&",
+        "email": "carmen.dominguez@hotmail.com",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0046",
+        "first_name": "Javier",
+        "last_name": "Vila",
+        "license_number": "50406993",
+        "username": "javier.vila",
+        "password": "1nfGR5W6B2A%",
+        "email": "javier.vila@outlook.com",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0047",
+        "first_name": "Laia",
+        "last_name": "Jiménez",
+        "license_number": "79827691",
+        "username": "laia.jimenez",
+        "password": "9X*XreoQHe9o",
+        "email": "laia.jimenez@hotmail.com",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0048",
+        "first_name": "Carmen",
+        "last_name": "Hernández",
+        "license_number": "56933845",
+        "username": "carmen.hernandez",
+        "password": "4p9nwt4&pPqR",
+        "email": "carmen.hernandez@hospital.cat",
+        "shift": "night"
+    },
+    {
+        "internal_id": "ENF-0049",
+        "first_name": "Andrea",
+        "last_name": "Ramos",
+        "license_number": "73531956",
+        "username": "andrea.ramos",
+        "password": "8rM#VwkBSH9x",
+        "email": "andrea.ramos@hotmail.com",
+        "shift": "afternoon"
+    },
+    {
+        "internal_id": "ENF-0050",
+        "first_name": "Sergio",
+        "last_name": "Roca",
+        "license_number": "97183799",
+        "username": "sergio.roca",
+        "password": "SipveGVB22aG",
+        "email": "sergio.roca@sanidad.es",
+        "shift": "night"
+    }
+]
