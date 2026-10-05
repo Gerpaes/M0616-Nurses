@@ -12,7 +12,7 @@ final class NurseController extends AbstractController
     #[Route('/nurse/index', name: 'nurse_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        return $this->json($this->getNurses());
+        return $this->json($this->loadNurses());
     }
 
     #[Route('/nurse/login', name: 'nurse_login', methods: ['POST'])]
@@ -26,14 +26,14 @@ final class NurseController extends AbstractController
 
         }
 
-        foreach($this->getNurses() as $nurse){
+        foreach($this->loadNurses() as $nurse){
             if ($nurse['username'] === $data['user'] && $nurse['password'] === $data['password']){
                 return $this->json([
                     'success' => true,
                     'message' => 'Login correcto',
                 ]);
             }
-            
+
         }
         return $this->json([
             'success' => false,
@@ -42,7 +42,13 @@ final class NurseController extends AbstractController
 
     }
 
-    private function getNurses(): array
+    #[Route('/nurses', name: 'nurse_get_nurses', methods: ['GET'])]
+    public function getNurses(): JsonResponse
+    {
+        return $this->json($this->loadNurses());
+    }
+
+    private function loadNurses(): array
     {
         $path = $this->getParameter('kernel.project_dir') . '/data/nurses.json';
         $json = file_get_contents($path);
