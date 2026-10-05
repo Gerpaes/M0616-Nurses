@@ -1,0 +1,296 @@
+{
+    "info": {
+        "name": "M0616-Nurses",
+        "description": "Endpoint tests for the M0616-Nurses API. Run the requests in order: \"Get all nurses\" stores a nurse from the data set in collection variables, which the Login and Find by name requests reuse.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        { "key": "baseUrl", "value": "http://127.0.0.1:8000" },
+        { "key": "nurseUsername", "value": "" },
+        { "key": "nursePassword", "value": "" },
+        { "key": "nurseFirstName", "value": "" },
+        { "key": "nurseFirstNameUpper", "value": "" }
+    ],
+    "item": [
+        {
+            "name": "Get nurses",
+            "item": [
+                {
+                    "name": "Get all nurses",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                                    "",
+                                    "const nurses = pm.response.json();",
+                                    "",
+                                    "pm.test('Returns a non-empty array', () => {",
+                                    "    pm.expect(nurses).to.be.an('array').that.is.not.empty;",
+                                    "});",
+                                    "",
+                                    "pm.test('Each nurse has the expected fields', () => {",
+                                    "    nurses.forEach(nurse => {",
+                                    "        pm.expect(nurse).to.include.all.keys('internal_id', 'first_name', 'last_name', 'license_number', 'username', 'password', 'email', 'shift');",
+                                    "    });",
+                                    "});",
+                                    "",
+                                    "// Pick a nurse with an ASCII-only first name so the case-insensitive search test is reliable.",
+                                    "const nurse = nurses.find(n => /^[A-Za-z]+$/.test(n.first_name));",
+                                    "pm.collectionVariables.set('nurseUsername', nurse.username);",
+                                    "pm.collectionVariables.set('nursePassword', nurse.password);",
+                                    "pm.collectionVariables.set('nurseFirstName', nurse.first_name);",
+                                    "pm.collectionVariables.set('nurseFirstNameUpper', nurse.first_name.toUpperCase());"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/nurses"
+                    }
+                },
+                {
+                    "name": "Get nurse index",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                                    "",
+                                    "pm.test('Returns a non-empty array', () => {",
+                                    "    pm.expect(pm.response.json()).to.be.an('array').that.is.not.empty;",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/nurse/index"
+                    }
+                },
+                {
+                    "name": "Get all nurses - method not allowed",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 405', () => pm.response.to.have.status(405));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/nurses"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Login",
+            "item": [
+                {
+                    "name": "Login - valid credentials",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                                    "",
+                                    "pm.test('Login is successful', () => {",
+                                    "    const body = pm.response.json();",
+                                    "    pm.expect(body.success).to.be.true;",
+                                    "    pm.expect(body.message).to.eql('Login correcto');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"user\": \"{{nurseUsername}}\",\n    \"password\": \"{{nursePassword}}\"\n}"
+                        },
+                        "url": "{{baseUrl}}/nurse/login"
+                    }
+                },
+                {
+                    "name": "Login - wrong password",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 401', () => pm.response.to.have.status(401));",
+                                    "",
+                                    "pm.test('Login fails', () => {",
+                                    "    const body = pm.response.json();",
+                                    "    pm.expect(body.success).to.be.false;",
+                                    "    pm.expect(body.message).to.eql('Usuario o contraseña incorrectos');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"user\": \"{{nurseUsername}}\",\n    \"password\": \"wrong-password\"\n}"
+                        },
+                        "url": "{{baseUrl}}/nurse/login"
+                    }
+                },
+                {
+                    "name": "Login - missing password",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                                    "",
+                                    "pm.test('Reports required fields', () => {",
+                                    "    const body = pm.response.json();",
+                                    "    pm.expect(body.success).to.be.false;",
+                                    "    pm.expect(body.message).to.eql('El usuario y la contraseña son obligatorios');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"user\": \"{{nurseUsername}}\"\n}"
+                        },
+                        "url": "{{baseUrl}}/nurse/login"
+                    }
+                },
+                {
+                    "name": "Login - invalid JSON body",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                                    "",
+                                    "pm.test('Login fails', () => {",
+                                    "    pm.expect(pm.response.json().success).to.be.false;",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{ invalid json"
+                        },
+                        "url": "{{baseUrl}}/nurse/login"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Find by name",
+            "item": [
+                {
+                    "name": "Find by name - existing nurse",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                                    "",
+                                    "pm.test('Returns the requested nurse', () => {",
+                                    "    pm.expect(pm.response.json().first_name).to.eql(pm.collectionVariables.get('nurseFirstName'));",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/find-by-name/{{nurseFirstName}}"
+                    }
+                },
+                {
+                    "name": "Find by name - case insensitive",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                                    "",
+                                    "pm.test('Matches the name ignoring case', () => {",
+                                    "    pm.expect(pm.response.json().first_name).to.eql(pm.collectionVariables.get('nurseFirstName'));",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/find-by-name/{{nurseFirstNameUpper}}"
+                    }
+                },
+                {
+                    "name": "Find by name - not found",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                                    "",
+                                    "pm.test('Returns an error message', () => {",
+                                    "    pm.expect(pm.response.json().error).to.eql('Nurse not found');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/find-by-name/NoExisteEsteNombre"
+                    }
+                }
+            ]
+        }
+    ]
+}
