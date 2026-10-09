@@ -22,6 +22,13 @@ cd M0616-Nurses
 composer install
 ```
 
+El `APP_SECRET` de desarrollo no se versiona. Creá tu propio `.env.dev.local`
+(ignorado por git) con un secret aleatorio:
+
+```bash
+echo "APP_SECRET=$(php -r 'echo bin2hex(random_bytes(16));')" > .env.dev.local
+```
+
 Si necesitás sobreescribir alguna variable de entorno, creá `.env.local` (no se
 versiona) en vez de editar `.env`.
 
