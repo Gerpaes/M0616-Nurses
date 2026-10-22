@@ -12,10 +12,28 @@ use App\Repository\NurseRepository;
 final class NurseController extends AbstractController
 {
     #[Route('/nurse/index', name: 'nurse_index', methods: ['GET'])]
-    public function index(): JsonResponse
+    public function index(NurseRepository $nurseRepository): JsonResponse
     {
-        return $this->json($this->loadNurses());
+        $nurses = $nurseRepository->findAll();
+
+        $data = [];
+
+        foreach ($nurses as $nurse) {
+            $data[] = [
+                'id' => $nurse->getId(),
+                'internalId' => $nurse->getInternalId(),
+                'firstName' => $nurse->getFirstName(),
+                'lastName' => $nurse->getLastName(),
+                'licenseNumber' => $nurse->getLicenseNumber(),
+                'username' => $nurse->getUsername(),
+                'email' => $nurse->getEmail(),
+                'shift' => $nurse->getShift(),
+            ];
+        }
+
+        return $this->json($data);
     }
+
 
     #[Route('/nurse/login', name: 'nurse_login', methods: ['POST'])]
     public function loginNurses(Request $request, NurseRepository $nurseRepository): JsonResponse{
@@ -56,7 +74,6 @@ final class NurseController extends AbstractController
         $json = file_get_contents($path);
 
         return json_decode($json, true);
-
     }
 
     #[Route('/find-by-name/{name}', name: 'app_nurse_find_by_name', methods: ['GET'])]
