@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\NurseRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -59,16 +60,23 @@ final class NurseController extends AbstractController
     }
 
     #[Route('/find-by-name/{name}', name: 'app_nurse_find_by_name', methods: ['GET'])]
-    public function findByname(string $name): JsonResponse
+    public function findByName(string $name, NurseRepository $nurseRepository): JsonResponse
     {
-        $nurses = json_decode(file_get_contents(__DIR__ . '/../../data/nurses.json'), true);
+        $nurse = $nurseRepository->findOneBy(['firstName' => $name]);
 
-        foreach ($nurses as $nurse) {
-            if (strcasecmp($nurse['first_name'], $name) === 0) {
-                return $this->json($nurse);
-            }
+        if (!$nurse) {
+            return $this->json(['error' => 'Nurse not found'], 404);
         }
 
-        return $this->json(['error' => 'Nurse not found'], 404);
+        return $this->json([
+            'id' => $nurse->getId(),
+            'internal_id' => $nurse->getInternalId(),
+            'first_name' => $nurse->getFirstName(),
+            'last_name' => $nurse->getLastName(),
+            'license_number' => $nurse->getLicenseNumber(),
+            'username' => $nurse->getUsername(),
+            'email' => $nurse->getEmail(),
+            'shift' => $nurse->getShift(),
+        ]);
     }
 }
