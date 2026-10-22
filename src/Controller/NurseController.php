@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\NurseRepository;
 
 final class NurseController extends AbstractController
 {
@@ -35,28 +36,30 @@ final class NurseController extends AbstractController
 
 
     #[Route('/nurse/login', name: 'nurse_login', methods: ['POST'])]
-    public function loginNurses(Request $request): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
+    public function loginNurses(Request $request, NurseRepository $nurseRepository): JsonResponse{
+                $data = json_decode($request->getContent(), true);
         if (!is_array($data) || empty($data['user']) || empty($data['password'])) {
             return $this->json([
                 'success' => false,
                 'message' => 'El usuario y la contraseña son obligatorios',
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
+        
+        $nurse = $nurseRepository->findOneBy(['username' => $data['user']]);
 
-        foreach ($this->loadNurses() as $nurse) {
-            if ($nurse['username'] === $data['user'] && $nurse['password'] === $data['password']) {
-                return $this->json([
-                    'success' => true,
-                    'message' => 'Login correcto',
-                ]);
-            }
+
+        if ($nurse === null || $nurse->getPassword() !== $data['password']) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Usuario o contraseña incorrectos',
+            ], JsonResponse::HTTP_UNAUTHORIZED);
         }
-        return $this->json([
-            'success' => false,
-            'message' => 'Usuario o contraseña incorrectos',
-        ], JsonResponse::HTTP_UNAUTHORIZED);
+
+         return $this->json([
+            'success' => true,
+            'message' => 'Login correcto',
+        ]);
+
     }
 
     #[Route('/nurses', name: 'nurse_get_nurses', methods: ['GET'])]
