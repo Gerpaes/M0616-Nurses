@@ -2,17 +2,82 @@
 
 namespace App\Controller;
 
-
+use App\Entity\Nurse;
+use App\Repository\NurseRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
-use App\Repository\NurseRepository;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class NurseController extends AbstractController
 {
-    #[Route('/nurse/index', name: 'nurse_index', methods: ['GET'])]
+    #[Route('/nurse', name: 'app_nurse_index', methods: ['GET'])]
     public function index(NurseRepository $nurseRepository): JsonResponse
+    {
+        return $this->json(array_map($this->toArray(...), $nurseRepository->findAll()));
+    }
+
+    #[Route('/nurse/new', name: 'app_nurse_new', methods: ['POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            return $this->json(['errors' => ['body' => 'Invalid JSON']], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $nurse = new Nurse();
+        $this->fill($nurse, $data);
+
+        $errors = $this->validationErrors($nurse, $validator);
+        if ($errors) {
+            return $this->json(['errors' => $errors], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $entityManager->persist($nurse);
+        $entityManager->flush();
+
+        return $this->json($this->toArray($nurse), JsonResponse::HTTP_CREATED);
+    }
+
+    #[Route('/nurse/{id<\d+>}', name: 'app_nurse_show', methods: ['GET'])]
+    public function show(Nurse $nurse): JsonResponse
+    {
+        return $this->json($this->toArray($nurse));
+    }
+
+    #[Route('/nurse/{id<\d+>}/edit', name: 'app_nurse_edit', methods: ['PUT'])]
+    public function edit(Request $request, Nurse $nurse, EntityManagerInterface $entityManager, ValidatorInterface $validator): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            return $this->json(['errors' => ['body' => 'Invalid JSON']], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $this->fill($nurse, $data);
+
+        $errors = $this->validationErrors($nurse, $validator);
+        if ($errors) {
+            return $this->json(['errors' => $errors], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $entityManager->flush();
+
+        return $this->json($this->toArray($nurse));
+    }
+
+    #[Route('/nurse/{id<\d+>}', name: 'app_nurse_delete', methods: ['DELETE'])]
+    public function delete(Nurse $nurse, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $entityManager->remove($nurse);
+        $entityManager->flush();
+
+        return $this->json(null, JsonResponse::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/nurse/index', name: 'nurse_index', methods: ['GET'])]
+    public function apiIndex(NurseRepository $nurseRepository): JsonResponse
     {
         $nurses = $nurseRepository->findAll();
 
@@ -36,8 +101,9 @@ final class NurseController extends AbstractController
 
 
     #[Route('/nurse/login', name: 'nurse_login', methods: ['POST'])]
-    public function loginNurses(Request $request, NurseRepository $nurseRepository): JsonResponse{
-                $data = json_decode($request->getContent(), true);
+    public function loginNurses(Request $request, NurseRepository $nurseRepository): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
         if (!is_array($data) || empty($data['user']) || empty($data['password'])) {
             return $this->json([
                 'success' => false,
@@ -59,21 +125,6 @@ final class NurseController extends AbstractController
             'success' => true,
             'message' => 'Login correcto',
         ]);
-
-    }
-
-    ##[Route('/nurses', name: 'nurse_get_nurses', methods: ['GET'])]
-    public function getNurses(): JsonResponse
-    {
-        return $this->json($this->loadNurses());
-    }
-
-    private function loadNurses(): array
-    {
-        $path = $this->getParameter('kernel.project_dir') . '/data/nurses.json';
-        $json = file_get_contents($path);
-
-        return json_decode($json, true);
     }
 
     #[Route('/find-by-name/{name}', name: 'app_nurse_find_by_name', methods: ['GET'])]
@@ -95,5 +146,49 @@ final class NurseController extends AbstractController
             'email' => $nurse->getEmail(),
             'shift' => $nurse->getShift(),
         ]);
+    }
+
+    private function toArray(Nurse $nurse): array
+    {
+        return [
+            'id' => $nurse->getId(),
+            'internalId' => $nurse->getInternalId(),
+            'firstName' => $nurse->getFirstName(),
+            'lastName' => $nurse->getLastName(),
+            'licenseNumber' => $nurse->getLicenseNumber(),
+            'username' => $nurse->getUsername(),
+            'email' => $nurse->getEmail(),
+            'shift' => $nurse->getShift(),
+        ];
+    }
+
+    private function fill(Nurse $nurse, array $data): void
+    {
+        $setters = [
+            'internalId' => $nurse->setInternalId(...),
+            'firstName' => $nurse->setFirstName(...),
+            'lastName' => $nurse->setLastName(...),
+            'licenseNumber' => $nurse->setLicenseNumber(...),
+            'username' => $nurse->setUsername(...),
+            'password' => $nurse->setPassword(...),
+            'email' => $nurse->setEmail(...),
+            'shift' => $nurse->setShift(...),
+        ];
+
+        foreach ($setters as $field => $setter) {
+            if (array_key_exists($field, $data)) {
+                $setter((string) $data[$field]);
+            }
+        }
+    }
+
+    private function validationErrors(Nurse $nurse, ValidatorInterface $validator): array
+    {
+        $errors = [];
+        foreach ($validator->validate($nurse) as $violation) {
+            $errors[$violation->getPropertyPath()] = $violation->getMessage();
+        }
+
+        return $errors;
     }
 }
