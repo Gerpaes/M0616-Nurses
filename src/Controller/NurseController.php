@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+
 final class NurseController extends AbstractController
 {
     #[Route('/nurse', name: 'app_nurse_index', methods: ['GET'])]
@@ -101,24 +102,42 @@ final class NurseController extends AbstractController
         return $this->json($this->toArray($nurse));
     }
 
-    #[Route('/nurse/{id<\d+>}/edit', name: 'app_nurse_edit', methods: ['PUT'])]
-    public function edit(Request $request, Nurse $nurse, EntityManagerInterface $entityManager, ValidatorInterface $validator): JsonResponse
+    #[Route('/nurse/{id<\d+>}', name: 'nurse_update', methods: ['PUT'])]
+    public function edit(Request $request, ?Nurse $nurse, EntityManagerInterface $entityManager, ValidatorInterface $validator): JsonResponse
     {
+        if (!$nurse) {
+            return $this->json(['error' => 'Enfermero no encontrado'], 404);
+        }
+
         $data = json_decode($request->getContent(), true);
-        if (!is_array($data)) {
-            return $this->json(['errors' => ['body' => 'Invalid JSON']], JsonResponse::HTTP_BAD_REQUEST);
+        if (!is_array($data) || !$data) {
+            return $this->json(['error' => 'Datos no válidos'], 400);
+        }
+
+        if (array_key_exists('internalId', $data)) {
+            return $this->json(['error' => 'El ID interno no se puede modificar'], 400);
+        }
+
+        $allowedFields = ['firstName', 'lastName', 'licenseNumber', 'username', 'password', 'email', 'shift'];
+        foreach ($data as $field => $value) {
+            if (!in_array($field, $allowedFields, true)) {
+                return $this->json(['error' => "El campo '$field' no existe o no se puede modificar"], 400);
+            }
+            if (!is_string($value)) {
+                return $this->json(['error' => "El campo '$field' debe ser un texto"], 400);
+            }
         }
 
         $this->fill($nurse, $data);
 
         $errors = $this->validationErrors($nurse, $validator);
         if ($errors) {
-            return $this->json(['errors' => $errors], JsonResponse::HTTP_BAD_REQUEST);
+            return $this->json(['errors' => $errors], 400);
         }
 
         $entityManager->flush();
 
-        return $this->json($this->toArray($nurse));
+        return $this->json($this->toArray($nurse), 200);
     }
 
     #[Route('/nurse/{id<\d+>}', name: 'app_nurse_delete', methods: ['DELETE'])]
@@ -250,4 +269,5 @@ final class NurseController extends AbstractController
     {
         return strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $value));
     }
+
 }
