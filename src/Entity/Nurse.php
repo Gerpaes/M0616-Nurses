@@ -20,37 +20,39 @@ class Nurse
     private ?int $id = null;
 
     #[ORM\Column(length: 20, unique: true)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(normalizer: 'trim')]
     #[Assert\Length(max: 20)]
     private ?string $internalId = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(normalizer: 'trim')]
     #[Assert\Length(max: 100)]
+    #[Assert\Regex(pattern: '/^[\p{L} ]+$/u', message: 'El nombre solo puede contener letras y espacios')]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(normalizer: 'trim')]
     #[Assert\Length(max: 100)]
+    #[Assert\Regex(pattern: '/^[\p{L} ]+$/u', message: 'El apellido solo puede contener letras y espacios')]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 20, unique: true)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(normalizer: 'trim')]
     #[Assert\Length(max: 20)]
     private ?string $licenseNumber = null;
 
     #[ORM\Column(length: 50, unique: true)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(normalizer: 'trim')]
     #[Assert\Length(max: 50)]
     private ?string $username = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(normalizer: 'trim')]
     #[Assert\Length(max: 255)]
     private ?string $password = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(normalizer: 'trim')]
     #[Assert\Email]
     #[Assert\Length(max: 180)]
     private ?string $email = null;
