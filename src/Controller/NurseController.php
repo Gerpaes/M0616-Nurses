@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Nurse;
 use App\Repository\NurseRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Exception\JsonException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,25 +23,77 @@ final class NurseController extends AbstractController
     }
 
     #[Route('/nurse/new', name: 'app_nurse_new', methods: ['POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
-        if (!is_array($data)) {
-            return $this->json(['errors' => ['body' => 'Invalid JSON']], JsonResponse::HTTP_BAD_REQUEST);
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator
+    ): JsonResponse {
+        // 1. Leer el JSON
+        try {
+            $data = $request->toArray();
+        } catch (JsonException) {
+            return $this->json(['error' => 'Invalid JSON'], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $nurse = new Nurse();
-        $this->fill($nurse, $data);
+        // 2. Comprobar tipos: los setters de la entidad exigen string
+        if (isset($data['license_number']) && is_int($data['license_number'])) {
+            $data['license_number'] = (string) $data['license_number'];
+        }
 
-        $errors = $this->validationErrors($nurse, $validator);
+        $fields = ['internal_id', 'first_name', 'last_name', 'license_number', 'username', 'email', 'shift', 'password'];
+        $errors = [];
+        foreach ($fields as $field) {
+            if (isset($data[$field]) && !is_string($data[$field])) {
+                $errors[$field][] = 'Must be a string';
+            }
+        }
         if ($errors) {
-            return $this->json(['errors' => $errors], JsonResponse::HTTP_BAD_REQUEST);
+            return $this->json(['errors' => $errors], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $entityManager->persist($nurse);
-        $entityManager->flush();
+        // 3. Validar la entidad con las restricciones definidas en Nurse.
+        $nurse = new Nurse();
+        $nurse->setInternalId($data['internal_id'] ?? '');
+        $nurse->setFirstName($data['first_name'] ?? '');
+        $nurse->setLastName($data['last_name'] ?? '');
+        $nurse->setLicenseNumber($data['license_number'] ?? '');
+        $nurse->setUsername($data['username'] ?? '');
+        $nurse->setPassword($data['password'] ?? '');
+        $nurse->setEmail($data['email'] ?? '');
+        $nurse->setShift($data['shift'] ?? '');
 
-        return $this->json($this->toArray($nurse), JsonResponse::HTTP_CREATED);
+        // 4. Validar las restricciones declaradas en la entidad.
+        foreach ($validator->validate($nurse) as $violation) {
+            $property = $this->toSnakeCase($violation->getPropertyPath());
+            $errors[$property][] = $violation->getMessage();
+        }
+
+        if ($errors) {
+            return $this->json(['errors' => $errors], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $nurse->setPassword(password_hash($nurse->getPassword(), PASSWORD_BCRYPT));
+
+        // 5. Guardar
+        try {
+            $entityManager->persist($nurse);
+            $entityManager->flush();
+        } catch (UniqueConstraintViolationException) {
+            // Dos peticiones simultáneas pueden pasar la validación a la vez
+            return $this->json(['error' => 'Nurse already exists'], JsonResponse::HTTP_CONFLICT);
+        }
+
+        // 6. Responder sin el password
+        return $this->json([
+            'id' => $nurse->getId(),
+            'internal_id' => $nurse->getInternalId(),
+            'first_name' => $nurse->getFirstName(),
+            'last_name' => $nurse->getLastName(),
+            'license_number' => $nurse->getLicenseNumber(),
+            'username' => $nurse->getUsername(),
+            'email' => $nurse->getEmail(),
+            'shift' => $nurse->getShift(),
+        ], JsonResponse::HTTP_CREATED);
     }
 
     #[Route('/nurse/{id<\d+>}', name: 'app_nurse_show', methods: ['GET'])]
@@ -129,7 +183,7 @@ final class NurseController extends AbstractController
                 'message' => 'El usuario y la contraseña son obligatorios',
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
-        
+
         $nurse = $nurseRepository->findOneBy(['username' => $data['user']]);
 
 
@@ -140,7 +194,7 @@ final class NurseController extends AbstractController
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-         return $this->json([
+        return $this->json([
             'success' => true,
             'message' => 'Login correcto',
         ]);
@@ -211,5 +265,9 @@ final class NurseController extends AbstractController
         return $errors;
     }
 
+    private function toSnakeCase(string $value): string
+    {
+        return strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $value));
+    }
 
 }
