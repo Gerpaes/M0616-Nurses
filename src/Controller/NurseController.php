@@ -97,8 +97,12 @@ final class NurseController extends AbstractController
     }
 
     #[Route('/nurse/{id<\d+>}', name: 'app_nurse_show', methods: ['GET'])]
-    public function show(Nurse $nurse): JsonResponse
+    public function show(?Nurse $nurse): JsonResponse
     {
+        if (!$nurse) {
+            return $this->json(['error' => 'Nurse not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
         return $this->json($this->toArray($nurse));
     }
 
