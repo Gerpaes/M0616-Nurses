@@ -106,7 +106,7 @@ final class NurseController extends AbstractController
         return $this->json($this->toArray($nurse));
     }
 
-    #[Route('/nurse/{id<\d+>}', name: 'nurse_update', methods: ['PUT'])]
+        #[Route('/nurse/{id<\d+>}', name: 'nurse_update', methods: ['PUT'])]
     public function edit(Request $request, ?Nurse $nurse, EntityManagerInterface $entityManager, ValidatorInterface $validator): JsonResponse
     {
         if (!$nurse) {
@@ -119,16 +119,16 @@ final class NurseController extends AbstractController
         }
 
         if (array_key_exists('internalId', $data)) {
-            return $this->json(['error' => 'El ID interno no se puede modificar'], 400);
+            return $this->json(['error' => 'El ID interno no se puede modificar'], 422);
         }
 
         $allowedFields = ['firstName', 'lastName', 'licenseNumber', 'username', 'password', 'email', 'shift'];
         foreach ($data as $field => $value) {
             if (!in_array($field, $allowedFields, true)) {
-                return $this->json(['error' => "El campo '$field' no existe o no se puede modificar"], 400);
+                return $this->json(['error' => "El campo '$field' no existe o no se puede modificar"], 422);
             }
             if (!is_string($value)) {
-                return $this->json(['error' => "El campo '$field' debe ser un texto"], 400);
+                return $this->json(['error' => "El campo '$field' debe ser un texto"], 422);
             }
         }
 
@@ -136,7 +136,7 @@ final class NurseController extends AbstractController
 
         $errors = $this->validationErrors($nurse, $validator);
         if ($errors) {
-            return $this->json(['errors' => $errors], 400);
+            return $this->json(['errors' => $errors], 422);
         }
 
         $entityManager->flush();
