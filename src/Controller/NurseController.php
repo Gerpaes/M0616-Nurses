@@ -160,7 +160,7 @@ final class NurseController extends AbstractController
     }
 
     #[Route('/nurse/index', name: 'nurse_index', methods: ['GET'])]
-    public function apiIndex(NurseRepository $nurseRepository): JsonResponse
+    public function getAll(NurseRepository $nurseRepository): JsonResponse
     {
         $nurses = $nurseRepository->findAll();
 
@@ -184,7 +184,7 @@ final class NurseController extends AbstractController
 
 
     #[Route('/nurse/login', name: 'nurse_login', methods: ['POST'])]
-    public function loginNurses(Request $request, NurseRepository $nurseRepository): JsonResponse
+    public function login(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         if (!is_array($data) || empty($data['user']) || empty($data['password'])) {
@@ -210,7 +210,7 @@ final class NurseController extends AbstractController
         ]);
     }
 
-    #[Route('/find-by-name/{name}', name: 'app_nurse_find_by_name', methods: ['GET'])]
+    #[Route('/nurse/name/{name}', name: 'app_nurse_find_by_name', methods: ['GET'])]
     public function findByName(string $name, NurseRepository $nurseRepository): JsonResponse
     {
         $nurse = $nurseRepository->findOneBy(['firstName' => $name]);
