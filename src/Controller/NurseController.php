@@ -106,7 +106,7 @@ final class NurseController extends AbstractController
         return $this->json($this->toArray($nurse));
     }
 
-        #[Route('/nurse/{id<\d+>}', name: 'nurse_update', methods: ['PUT'])]
+       #[Route('/nurse/{id<\d+>}', name: 'nurse_update', methods: ['PUT'])]
     public function edit(Request $request, ?Nurse $nurse, EntityManagerInterface $entityManager, ValidatorInterface $validator): JsonResponse
     {
         if (!$nurse) {
@@ -137,6 +137,15 @@ final class NurseController extends AbstractController
         $errors = $this->validationErrors($nurse, $validator);
         if ($errors) {
             return $this->json(['errors' => $errors], 422);
+        }
+
+        // Si se cambia la contraseña, se valida y se guarda con hash (igual que en new)
+        if (isset($data['password'])) {
+            $length = mb_strlen($data['password']);
+            if ($length < 8 || $length > 72) {
+                return $this->json(['errors' => ['password' => 'Password must be 8 to 72 characters long']], 422);
+            }
+            $nurse->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
         }
 
         $entityManager->flush();
@@ -187,7 +196,7 @@ final class NurseController extends AbstractController
     }
 
 
-    #[Route('/nurse/login', name: 'nurse_login', methods: ['POST'])]
+        #[Route('/nurse/login', name: 'nurse_login', methods: ['POST'])]
     public function login(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -200,8 +209,11 @@ final class NurseController extends AbstractController
 
         $nurse = $nurseRepository->findOneBy(['username' => $data['user']]);
 
+        $stored = $nurse?->getPassword() ?? '';
+        $validPassword = password_verify((string) $data['password'], $stored)
+            || hash_equals($stored, (string) $data['password']);
 
-        if ($nurse === null || $nurse->getPassword() !== $data['password']) {
+        if ($nurse === null || !$validPassword) {
             return $this->json([
                 'success' => false,
                 'message' => 'Usuario o contraseña incorrectos',
