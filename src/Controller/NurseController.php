@@ -161,7 +161,7 @@ final class NurseController extends AbstractController
         if (!$nurse) {
             return $this->json([
                 'error' => 'Nurse not found'
-            ], JsonResponse::HTTP_OK);
+            ], JsonResponse::HTTP_NOT_FOUND);
         }
 
         $entityManager->remove($nurse);
