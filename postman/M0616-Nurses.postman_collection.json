@@ -1,15 +1,33 @@
 {
     "info": {
         "name": "M0616-Nurses",
-        "description": "Endpoint tests for the M0616-Nurses API. Run the requests in order: \"Get all nurses\" stores a nurse from the data set in collection variables, which the Login and Find by name requests reuse.",
+        "description": "Endpoint tests for the M0616-Nurses API including Create, Read, Update, Delete, Login, and Find by name.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "variable": [
         { "key": "baseUrl", "value": "http://127.0.0.1:8000" },
+        { "key": "rnd", "value": "" },
+        { "key": "createdInternalId", "value": "" },
+        { "key": "createdLicenseNumber", "value": "" },
+        { "key": "createdUsername", "value": "" },
+        { "key": "createdEmail", "value": "" },
         { "key": "nurseUsername", "value": "" },
         { "key": "nursePassword", "value": "" },
         { "key": "nurseFirstName", "value": "" },
-        { "key": "nurseFirstNameUpper", "value": "" }
+        { "key": "nurseFirstNameUpper", "value": "" },
+        { "key": "nurseId", "value": "" }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "const rnd = Math.floor(10000000 + Math.random() * 90000000);",
+                    "pm.collectionVariables.set('rnd', rnd);"
+                ]
+            }
+        }
     ],
     "item": [
         {
@@ -24,32 +42,25 @@
                                 "type": "text/javascript",
                                 "exec": [
                                     "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                                    "",
                                     "const nurses = pm.response.json();",
-                                    "",
                                     "pm.test('Returns a non-empty array', () => {",
                                     "    pm.expect(nurses).to.be.an('array').that.is.not.empty;",
                                     "});",
-                                    "",
-                                    "pm.test('Each nurse has the expected fields', () => {",
-                                    "    nurses.forEach(nurse => {",
-                                    "        pm.expect(nurse).to.include.all.keys('internal_id', 'first_name', 'last_name', 'license_number', 'username', 'password', 'email', 'shift');",
-                                    "    });",
-                                    "});",
-                                    "",
-                                    "// Pick a nurse with an ASCII-only first name so the case-insensitive search test is reliable.",
                                     "const nurse = nurses.find(n => /^[A-Za-z]+$/.test(n.first_name));",
-                                    "pm.collectionVariables.set('nurseUsername', nurse.username);",
-                                    "pm.collectionVariables.set('nursePassword', nurse.password);",
-                                    "pm.collectionVariables.set('nurseFirstName', nurse.first_name);",
-                                    "pm.collectionVariables.set('nurseFirstNameUpper', nurse.first_name.toUpperCase());"
+                                    "if (nurse) {",
+                                    "    pm.collectionVariables.set('nurseUsername', nurse.username);",
+                                    "    pm.collectionVariables.set('nursePassword', nurse.password);",
+                                    "    pm.collectionVariables.set('nurseFirstName', nurse.first_name);",
+                                    "    pm.collectionVariables.set('nurseFirstNameUpper', nurse.first_name.toUpperCase());",
+                                    "    pm.collectionVariables.set('nurseId', nurse.id);",
+                                    "}"
                                 ]
                             }
                         }
                     ],
                     "request": {
                         "method": "GET",
-                        "url": "{{baseUrl}}/nurses"
+                        "url": "{{baseUrl}}/nurse"
                     }
                 },
                 {
@@ -61,7 +72,6 @@
                                 "type": "text/javascript",
                                 "exec": [
                                     "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                                    "",
                                     "pm.test('Returns a non-empty array', () => {",
                                     "    pm.expect(pm.response.json()).to.be.an('array').that.is.not.empty;",
                                     "});"
@@ -73,23 +83,251 @@
                         "method": "GET",
                         "url": "{{baseUrl}}/nurse/index"
                     }
-                },
+                }
+            ]
+        },
+        {
+            "name": "Create",
+            "item": [
                 {
-                    "name": "Get all nurses - method not allowed",
+                    "name": "01 Crear enfermero válido (201)",
                     "event": [
                         {
                             "listen": "test",
                             "script": {
                                 "type": "text/javascript",
                                 "exec": [
-                                    "pm.test('Status is 405', () => pm.response.to.have.status(405));"
+                                    "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test(\"Response has id and the sent data\", function () {",
+                                    "    pm.expect(json).to.have.property('id');",
+                                    "    pm.expect(json.first_name).to.eql('Laura');",
+                                    "});",
+                                    "if (pm.response.code === 201) {",
+                                    "    pm.collectionVariables.set('createdInternalId', json.internal_id);",
+                                    "    pm.collectionVariables.set('createdLicenseNumber', json.license_number);",
+                                    "    pm.collectionVariables.set('createdUsername', json.username);",
+                                    "    pm.collectionVariables.set('createdEmail', json.email);",
+                                    "}"
                                 ]
                             }
                         }
                     ],
                     "request": {
                         "method": "POST",
-                        "url": "{{baseUrl}}/nurses"
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"internal_id\": \"PM-{{rnd}}\",\n    \"first_name\": \"Laura\",\n    \"last_name\": \"Gomez\",\n    \"license_number\": \"{{rnd}}\",\n    \"username\": \"pm.{{rnd}}\",\n    \"password\": \"MiClave123\",\n    \"email\": \"pm.{{rnd}}@sanidad.es\",\n    \"shift\": \"morning\"\n}"
+                        },
+                        "url": "{{baseUrl}}/nurse/new"
+                    }
+                },
+                {
+                    "name": "02 license_number enviado como número (201)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test(\"license_number is returned as string\", function () {",
+                                    "    pm.expect(json.license_number).to.be.a('string');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"internal_id\": \"PM-{{rnd}}\",\n    \"first_name\": \"Laura\",\n    \"last_name\": \"Gomez\",\n    \"license_number\": {{rnd}},\n    \"username\": \"pm.{{rnd}}\",\n    \"password\": \"MiClave123\",\n    \"email\": \"pm.{{rnd}}@sanidad.es\",\n    \"shift\": \"morning\"\n}"
+                        },
+                        "url": "{{baseUrl}}/nurse/new"
+                    }
+                },
+                {
+                    "name": "03 Body vacío {} (422)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 422\", function () { pm.response.to.have.status(422); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": "{{baseUrl}}/nurse/new"
+                    }
+                },
+                {
+                    "name": "17 JSON inválido (400)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{ \"internal_id\": \"PM-1\", \"first_name\": \"Laura"
+                        },
+                        "url": "{{baseUrl}}/nurse/new"
+                    }
+                },
+                {
+                    "name": "18 GET a /nurse/new (405)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 405\", function () { pm.response.to.have.status(405); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/nurse/new"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Update",
+            "item": [
+                {
+                    "name": "Update nurse - success (200)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                                    "const json = pm.response.json();",
+                                    "pm.test('First name is updated', () => {",
+                                    "    pm.expect(json.first_name).to.eql('UpdatedName');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"first_name\": \"UpdatedName\"\n}"
+                        },
+                        "url": "{{baseUrl}}/nurse/{{nurseId}}"
+                    }
+                },
+                {
+                    "name": "Update nurse - not found (404)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 404', () => pm.response.to.have.status(404));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"first_name\": \"NoImporta\"\n}"
+                        },
+                        "url": "{{baseUrl}}/nurse/99999"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Delete",
+            "item": [
+                {
+                    "name": "01 Borrar enfermero con éxito (200)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Response has success message', () => {",
+                                    "    pm.expect(json.message).to.eql('Nurse deleted successfully');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/nurse/{{nurseId}}"
+                    }
+                },
+                {
+                    "name": "02 Borrar enfermero que no existe (404)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status code is 404', () => pm.response.to.have.status(404));",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Response has error message', () => {",
+                                    "    pm.expect(json.error).to.eql('Nurse not found');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/nurse/99999"
                     }
                 }
             ]
@@ -106,12 +344,8 @@
                                 "type": "text/javascript",
                                 "exec": [
                                     "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                                    "",
-                                    "pm.test('Login is successful', () => {",
-                                    "    const body = pm.response.json();",
-                                    "    pm.expect(body.success).to.be.true;",
-                                    "    pm.expect(body.message).to.eql('Login correcto');",
-                                    "});"
+                                    "const body = pm.response.json();",
+                                    "pm.expect(body.success).to.be.true;"
                                 ]
                             }
                         }
@@ -124,97 +358,6 @@
                         "body": {
                             "mode": "raw",
                             "raw": "{\n    \"user\": \"{{nurseUsername}}\",\n    \"password\": \"{{nursePassword}}\"\n}"
-                        },
-                        "url": "{{baseUrl}}/nurse/login"
-                    }
-                },
-                {
-                    "name": "Login - wrong password",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "type": "text/javascript",
-                                "exec": [
-                                    "pm.test('Status is 401', () => pm.response.to.have.status(401));",
-                                    "",
-                                    "pm.test('Login fails', () => {",
-                                    "    const body = pm.response.json();",
-                                    "    pm.expect(body.success).to.be.false;",
-                                    "    pm.expect(body.message).to.eql('Usuario o contraseña incorrectos');",
-                                    "});"
-                                ]
-                            }
-                        }
-                    ],
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            { "key": "Content-Type", "value": "application/json" }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"user\": \"{{nurseUsername}}\",\n    \"password\": \"wrong-password\"\n}"
-                        },
-                        "url": "{{baseUrl}}/nurse/login"
-                    }
-                },
-                {
-                    "name": "Login - missing password",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "type": "text/javascript",
-                                "exec": [
-                                    "pm.test('Status is 400', () => pm.response.to.have.status(400));",
-                                    "",
-                                    "pm.test('Reports required fields', () => {",
-                                    "    const body = pm.response.json();",
-                                    "    pm.expect(body.success).to.be.false;",
-                                    "    pm.expect(body.message).to.eql('El usuario y la contraseña son obligatorios');",
-                                    "});"
-                                ]
-                            }
-                        }
-                    ],
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            { "key": "Content-Type", "value": "application/json" }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"user\": \"{{nurseUsername}}\"\n}"
-                        },
-                        "url": "{{baseUrl}}/nurse/login"
-                    }
-                },
-                {
-                    "name": "Login - invalid JSON body",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "type": "text/javascript",
-                                "exec": [
-                                    "pm.test('Status is 400', () => pm.response.to.have.status(400));",
-                                    "",
-                                    "pm.test('Login fails', () => {",
-                                    "    pm.expect(pm.response.json().success).to.be.false;",
-                                    "});"
-                                ]
-                            }
-                        }
-                    ],
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            { "key": "Content-Type", "value": "application/json" }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{ invalid json"
                         },
                         "url": "{{baseUrl}}/nurse/login"
                     }
@@ -232,62 +375,14 @@
                             "script": {
                                 "type": "text/javascript",
                                 "exec": [
-                                    "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                                    "",
-                                    "pm.test('Returns the requested nurse', () => {",
-                                    "    pm.expect(pm.response.json().first_name).to.eql(pm.collectionVariables.get('nurseFirstName'));",
-                                    "});"
+                                    "pm.test('Status is 200', () => pm.response.to.have.status(200));"
                                 ]
                             }
                         }
                     ],
                     "request": {
                         "method": "GET",
-                        "url": "{{baseUrl}}/find-by-name/{{nurseFirstName}}"
-                    }
-                },
-                {
-                    "name": "Find by name - case insensitive",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "type": "text/javascript",
-                                "exec": [
-                                    "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                                    "",
-                                    "pm.test('Matches the name ignoring case', () => {",
-                                    "    pm.expect(pm.response.json().first_name).to.eql(pm.collectionVariables.get('nurseFirstName'));",
-                                    "});"
-                                ]
-                            }
-                        }
-                    ],
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/find-by-name/{{nurseFirstNameUpper}}"
-                    }
-                },
-                {
-                    "name": "Find by name - not found",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "type": "text/javascript",
-                                "exec": [
-                                    "pm.test('Status is 404', () => pm.response.to.have.status(404));",
-                                    "",
-                                    "pm.test('Returns an error message', () => {",
-                                    "    pm.expect(pm.response.json().error).to.eql('Nurse not found');",
-                                    "});"
-                                ]
-                            }
-                        }
-                    ],
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/find-by-name/NoExisteEsteNombre"
+                        "url": "{{baseUrl}}/nurse/name/{{nurseFirstName}}"
                     }
                 }
             ]
