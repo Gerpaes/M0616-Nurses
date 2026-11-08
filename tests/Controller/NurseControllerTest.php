@@ -7,22 +7,34 @@ use App\Repository\NurseRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Doctrine\ORM\Tools\SchemaTool;
 
 final class NurseControllerTest extends WebTestCase
 {
     private const PASSWORD = 'Secret123!';
 
-    private KernelBrowser $client;
+        private KernelBrowser $client;
+
+    private static bool $schemaCreated = false;
 
     protected function setUp(): void
     {
         $this->client = static::createClient();
 
-        // Seguridad: los tests solo pueden ejecutarse contra SQLite (var/test.db),
-        // nunca contra la base de datos de desarrollo. No abre conexión para comprobarlo.
+        
         $params = $this->em()->getConnection()->getParams();
         if (($params['driver'] ?? null) !== 'pdo_sqlite') {
             self::fail('Los tests deben usar SQLite. Revisa DATABASE_URL en .env.test.');
+        }
+
+        
+        if (!self::$schemaCreated) {
+            $em = $this->em();
+            $metadata = $em->getMetadataFactory()->getAllMetadata();
+            $schemaTool = new SchemaTool($em);
+            $schemaTool->dropSchema($metadata);
+            $schemaTool->createSchema($metadata);
+            self::$schemaCreated = true;
         }
     }
 
