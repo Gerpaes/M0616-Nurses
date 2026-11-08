@@ -1,126 +1,196 @@
-# M0616-Nurses
+# M0616-Nurses: Hospital Nursing Staff REST API
 
-API backend construida con Symfony para la gestión de personal de enfermería.
+## Description
 
-## Stack
+The goal of the project is to build a REST API with Symfony to manage the nursing staff of a hospital. It replaces manual record keeping with a centralised system that lets users create, view, update and delete nurses, and check their access through a login.
 
-- PHP >= 8.2
-- Symfony 7.4 (`framework-bundle`, `console`, `dotenv`, `routing`, `runtime`, `yaml`)
-- Symfony Flex para la gestión de recetas/paquetes
-- Doctrine ORM 3 (`doctrine-bundle`, `doctrine-migrations-bundle`) sobre MariaDB
+## Tech stack
 
-## Requisitos
+- PHP >= 8.2 (Composer platform set to PHP 8.2.0)
+- Symfony 7.4 (`framework-bundle`, `console`, `dotenv`, `runtime`, `validator`, `yaml`)
+- Doctrine ORM 3 with Doctrine Migrations
+- MariaDB (or MySQL)
 
-- PHP 8.2 o superior, con las extensiones `ctype`, `iconv` y `pdo_mysql`
+## Installation
+
+### Requirements
+
+- PHP 8.2 or higher, with the `ctype`, `iconv` and `pdo_mysql` extensions
 - [Composer](https://getcomposer.org/)
-- [MariaDB](https://mariadb.org/download/) (o MySQL) corriendo en local
-- [Symfony CLI](https://symfony.com/download) (recomendado, no obligatorio)
+- [MariaDB](https://mariadb.org/download/) (or MySQL) running locally
+- [Symfony CLI](https://symfony.com/download) (recommended, not required)
 
-## Instalación
+### Clone the repository
 
 ```bash
-git clone git@github.com:Gerpaes/M0616-Nurses.git
+git clone https://github.com/Gerpaes/M0616-Nurses.git
 cd M0616-Nurses
+```
+
+### Install dependencies
+
+```bash
 composer install
 ```
 
-El `APP_SECRET` de desarrollo no se versiona. Creá tu propio `.env.dev.local`
-(ignorado por git) con un secret aleatorio:
+### Configure the environment
+
+The committed `.env` file only holds default values and must not be edited with
+real credentials. Put your local configuration in `.env.dev.local`, which is
+ignored by Git.
+
+The project needs two variables:
+
+- `APP_SECRET`: a random secret for the `dev` environment.
+- `DATABASE_URL`: the connection to your local database.
+
+Generate a random `APP_SECRET`:
 
 ```bash
 echo "APP_SECRET=$(php -r 'echo bin2hex(random_bytes(16));')" > .env.dev.local
 ```
 
-Si necesitás sobreescribir alguna variable de entorno, creá `.env.local` (no se
-versiona) en vez de editar `.env`.
-
-## Base de datos
-
-El `DATABASE_URL` de `.env` es solo un ejemplo: las credenciales reales tampoco
-se versionan. Creá un usuario de MariaDB para el proyecto, con permisos sobre la
-base `nurses` (cambiá `TU_PASSWORD` por una contraseña propia):
+Add the database connection, replacing `user`, `password` and `serverVersion`
+with your own values (check your server version with `mariadb --version`):
 
 ```bash
-sudo mariadb -e "CREATE USER 'nurses'@'localhost' IDENTIFIED BY 'TU_PASSWORD'; GRANT ALL PRIVILEGES ON nurses.* TO 'nurses'@'localhost'; FLUSH PRIVILEGES;"
+echo 'DATABASE_URL="mysql://user:password@127.0.0.1:3306/nurses?serverVersion=11.8.6-MariaDB&charset=utf8mb4"' >> .env.dev.local
 ```
 
-Agregá la conexión a tu `.env.dev.local`, con esa misma contraseña y la versión
-de tu servidor (`mariadb --version`):
+If the password contains special characters (`@`, `:`, `/`, `#`, `%`, `?`), they
+must be URL-encoded (for example, `@` becomes `%40`).
 
-```bash
-echo 'DATABASE_URL="mysql://nurses:TU_PASSWORD@127.0.0.1:3306/nurses?serverVersion=11.8.6-MariaDB&charset=utf8mb4"' >> .env.dev.local
-```
+### Set up the database
 
-Si la contraseña tiene caracteres especiales (`@`, `:`, `/`, `#`, `%`, `?`) hay
-que codificarlos en la URL (por ejemplo `@` pasa a ser `%40`).
-
-Creá la base de datos y verificá la conexión:
+Create the database and run the migrations:
 
 ```bash
 symfony console doctrine:database:create
-symfony console dbal:run-sql "SELECT 1"
-```
-
-Los cambios de esquema se hacen siempre con migraciones:
-
-```bash
-symfony console make:migration
 symfony console doctrine:migrations:migrate
 ```
 
-## Levantar el proyecto
+Without the Symfony CLI:
 
-Con Symfony CLI:
+```bash
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
+```
+
+The migration creates the `nurse` table, with unique indexes on `internal_id`,
+`license_number`, `username` and `email`.
+
+Sample nurse data is available in `data/nurses.json`.
+
+## Usage
+
+### Running the API
+
+With the Symfony CLI:
 
 ```bash
 symfony serve -d
 ```
 
-Sin Symfony CLI:
+Without the Symfony CLI:
 
 ```bash
 php -S localhost:8000 -t public
 ```
 
-## Endpoints disponibles
-
-| Método | Ruta     | Descripción                       |
-| ------ | -------- | ---------------------------------- |
-| GET    | `/nurse` | Endpoint de prueba del `NurseController` |
-
-Para ver todas las rutas registradas:
+To list all registered routes:
 
 ```bash
 symfony console debug:router
 ```
 
-## Tests
-
-El proyecto no trae instalado `symfony/test-pack` por defecto. Para ejecutar
-los tests (`tests/`, basados en `WebTestCase`) hace falta instalarlo primero:
+Without the Symfony CLI:
 
 ```bash
-composer require --dev symfony/test-pack
-php bin/phpunit
+php bin/console debug:router
 ```
 
-## Estructura del proyecto
+### Endpoints
+
+All endpoints receive and return JSON. `{id}` only accepts digits.
+
+| Method | Route | Description | Response codes |
+| ------ | ----- | ----------- | -------------- |
+| GET | `/nurse` | List all nurses | `200` |
+| GET | `/nurse/index` | List all nurses (same output as `/nurse`) | `200` |
+| GET | `/nurse/{id}` | Get a nurse by id | `200` found, `404` not found |
+| GET | `/nurse/name/{name}` | Find a nurse by exact first name (returns the first match) | `200` found, `404` not found |
+| POST | `/nurse/new` | Create a nurse (body fields in snake_case; the password is stored hashed) | `201` created, `400` invalid JSON, `409` nurse already exists, `422` validation errors |
+| PUT | `/nurse/{id}` | Update a nurse (body fields in camelCase; `internalId` cannot be changed) | `200` updated, `400` invalid data or validation errors, `404` not found |
+| DELETE | `/nurse/{id}` | Delete a nurse | `200` deleted, `404` not found |
+| POST | `/nurse/login` | Check a nurse's credentials | `200` valid, `400` missing user or password, `401` invalid credentials |
+
+Validation rules for nurse fields:
+
+- When creating a nurse, all fields are required. All values must be strings.
+- `first_name` / `firstName` and `last_name` / `lastName`: letters and spaces only.
+- `email`: a valid email address.
+- `shift`: one of `morning`, `afternoon` or `night`.
+- `internal_id`, `license_number`, `username` and `email` must be unique.
+
+### Postman collection
+
+A Postman collection with requests for the API is available in
+`postman/M0616-Nurses.postman_collection.json`.
+
+## Sequence diagram
+
+The diagram follows the sequence diagram of the project brief. The flow is the same with a local database (localhost) or a centralised one (server).
+
+```mermaid
+sequenceDiagram
+    participant C as Browser / HTTP client
+    participant N as NurseController
+    participant D as Database
+
+    Note over C,D: Login
+    C->>N: POST /nurse/login
+    N->>D: login(user, pw)
+    D-->>N: nurse found?
+    alt user and password exist
+        N-->>C: JSON true
+    else user or password do not exist
+        N-->>C: JSON false
+    end
+
+    Note over C,D: List nurses
+    C->>N: GET /nurse/index
+    N->>D: getAll()
+    D-->>N: List<Nurse>
+    N-->>C: JSON List<Nurse>
+
+    Note over C,D: List nurse by name
+    C->>N: GET /nurse/name/{name}
+    N->>D: findByName(name)
+    D-->>N: Nurse
+    N-->>C: JSON Nurse
+```
+
+## Tests
+
+To be completed after #36 and #37.
+
+## Project structure
 
 ```
 src/
-  Controller/   # Controladores HTTP
-  Entity/       # Entidades de Doctrine
-  Repository/   # Repositorios de Doctrine
+  Controller/   # HTTP controllers
+  Entity/       # Doctrine entities
+  Repository/   # Doctrine repositories
   Kernel.php
-migrations/     # Migraciones de Doctrine
+migrations/     # Doctrine migrations
 tests/
-  Controller/   # Tests funcionales de los controladores
+  Controller/   # Functional tests for the controllers
 data/
-  nurses.json   # Datos de prueba
+  nurses.json   # Sample nurse data
+postman/        # Postman collection
 ```
 
-## Depuración
+## Debugging
 
 - Logs: `var/log/dev.log`
-- Web profiler: `/_profiler` (entorno `dev`)
-- Estado general del proyecto: `symfony console about`
+- Project overview: `symfony console about`
